@@ -69,54 +69,54 @@ fn main() {
             let (mut child, mut child_in, mut child_out) = engine.get_handles();
             engine.initialize_engine(&mut child_in, &mut child_out);
 
-            while let Some((fen, result)) = {
-                let mut guard = work_queue.lock().unwrap();
-                let res = if !guard.is_empty() {
-                    Some(guard.remove(0))
-                } else {
-                    None
-                };
-                std::mem::drop(guard);
-                res
-            } {
-                let latest_pv = engine.request(
-                    &fen,
-                    &format!("depth {}", depth),
-                    &mut child_in,
-                    &mut child_out,
-                );
-                if latest_pv.contains("mate") || !latest_pv.contains("score") {
-                    continue;
+            let mut local_queue = Vec::new();
+            let mut local_res_queue = Vec::new();
+            loop {
+                local_queue.clear();
+                local_res_queue.clear();
+                fetch_queue(&mut local_queue, &work_queue);
+                if local_queue.len() == 0 {
+                    break;
                 }
-                let score: i32 = latest_pv
-                    .rsplit("score cp ")
-                    .next()
-                    .unwrap()
-                    .split_whitespace()
-                    .next()
-                    .unwrap()
-                    .parse()
-                    .unwrap();
-                if score.abs() > filterlimit {
-                    continue;
-                }
-                let latest_pv = latest_pv.rsplit("pv ").next().unwrap().trim_end();
-
-                let mut position: Chess = Fen::from_str(&fen).unwrap().position().unwrap();
-                for mv in latest_pv.split(' ') {
-                    let mv = Uci::from_str(mv)
-                        .ok()
-                        .and_then(|x| x.to_move(&position).ok())
+                while let Some((fen, result)) = local_queue.pop() {
+                    let latest_pv = engine.request(
+                        &fen,
+                        &format!("depth {}", depth),
+                        &mut child_in,
+                        &mut child_out,
+                    );
+                    if latest_pv.contains("mate") || !latest_pv.contains("score") {
+                        continue;
+                    }
+                    let score: i32 = latest_pv
+                        .rsplit("score cp ")
+                        .next()
+                        .unwrap()
+                        .split_whitespace()
+                        .next()
+                        .unwrap()
+                        .parse()
                         .unwrap();
-                    position = position.play(&mv).unwrap();
+                    if score.abs() > filterlimit {
+                        continue;
+                    }
+                    let latest_pv = latest_pv.rsplit("pv ").next().unwrap().trim_end();
+
+                    let mut position: Chess = Fen::from_str(&fen).unwrap().position().unwrap();
+                    for mv in latest_pv.split(' ') {
+                        let mv = Uci::from_str(mv)
+                            .ok()
+                            .and_then(|x| x.to_move(&position).ok())
+                            .unwrap();
+                        position = position.play(&mv).unwrap();
+                    }
+                    local_res_queue.push(format!("{}, [{}]", fen::fen(&position), result));
                 }
-                writeln!(
-                    &mut out_writer.lock().unwrap(),
-                    "{} [{}]",
-                    fen::fen(&position),
-                    result
-                )
-                .unwrap();
+                let mut write = out_writer.lock().unwrap();
+                for s in local_res_queue.iter() {
+                    writeln!(&mut write, "{}", s).unwrap();
+                }
+                std::mem::drop(write);
             }
             child.kill().unwrap();
         }));
@@ -126,4 +126,12 @@ fn main() {
         worker.join().unwrap();
     }
     outfile.lock().unwrap().flush().unwrap();
+}
+fn fetch_queue<T>(local_queue: &mut Vec<T>, worker_queue: &Arc<Mutex<Vec<T>>>) {
+    let mut worker_queue = worker_queue.lock().unwrap();
+    for _ in 0..100 {
+        if let Some(t) = worker_queue.pop() {
+            local_queue.push(t);
+        }
+    }
 }
