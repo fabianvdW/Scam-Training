@@ -54,9 +54,7 @@ impl Engine {
 
     pub fn get_handles(&self) -> (Child, LineWriter<ChildStdin>, BufReader<ChildStdout>) {
         let mut cmd = Command::new(&self.path);
-        cmd.stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
+        cmd.stdin(Stdio::piped()).stdout(Stdio::piped());
         let mut child = cmd.spawn().unwrap();
         let stdin = LineWriter::new(child.stdin.take().unwrap());
         let stdout = BufReader::new(child.stdout.take().unwrap());
