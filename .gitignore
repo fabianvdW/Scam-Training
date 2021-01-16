@@ -1,0 +1,7 @@
+*.pgn
+*.csv
+*.zip
+*.epd
+*.exe
+.cargo
+.idea

@@ -1,0 +1,22 @@
+[package]
+name = "rustscripts"
+version = "0.1.0"
+authors = ["fabianvdW <fabianvonderwarth@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "epdtobatch"
+path = "src/epd_to_batch.rs"
+
+[[bin]]
+name = "pgntoepd"
+path = "src/pgn_to_epd.rs"
+
+[[bin]]
+name = "refine_epd"
+path = "src/refine_epd.rs"
+[dependencies]
+pgn-reader="0.11.0"
+shakmaty = "0.12"
+rand = "0.8.2"

@@ -1,0 +1,4 @@
+batch_0 to batch_9 : Andrew E12.33-1M-D12-Resolved.epd
+batch_10 to batch_19: Andrew E12.41-1M-D12-Resolved.epd
+batch_20 to batch_32: Andrew E12.46FRC-1250k-D12-1s-Resolved.epd
+batch_33 to batch_42: Andrew E12.52-1M-D12-Resolved.epd

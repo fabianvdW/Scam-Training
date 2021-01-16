@@ -1,0 +1,4 @@
+Collect PGN data
+PGN_TO_EPD.rs : Sampling of PGN (is pretty fast, does not need to be multithreaded)
+REFINE_EPD.rs : PGN Sampling => Play out pv of a depth x search of an engine, grab tail of pv, save it.(is pretty slow, needs to be multithreaded). Saves back to epd file
+EPD_TO_BATCH: Finally take epd data and generate batches of size 1M as csv data.
