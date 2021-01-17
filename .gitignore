@@ -5,3 +5,5 @@
 *.exe
 .cargo
 .idea
+*.npy
+*.pkl

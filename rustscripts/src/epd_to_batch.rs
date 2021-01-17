@@ -46,6 +46,7 @@ fn main() {
         let line = line.expect("Unable to read line");
         let mut iter = line.split('[');
         let fen = iter.next().unwrap();
+        let fen = fen.replace(",", "");
         let score = iter
             .next()
             .unwrap()

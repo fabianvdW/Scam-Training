@@ -110,7 +110,7 @@ fn main() {
                             .unwrap();
                         position = position.play(&mv).unwrap();
                     }
-                    local_res_queue.push(format!("{}, [{}]", fen::fen(&position), result));
+                    local_res_queue.push(format!("{} [{}]", fen::fen(&position), result));
                 }
                 let mut write = out_writer.lock().unwrap();
                 for s in local_res_queue.iter() {
