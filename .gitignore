@@ -7,3 +7,4 @@
 .idea
 *.npy
 *.pkl
+.ipynb_checkpoints

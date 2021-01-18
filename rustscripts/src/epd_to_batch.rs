@@ -50,7 +50,9 @@ fn main() {
         let score = iter
             .next()
             .unwrap()
-            .replace("]", "")
+            .split("]")
+            .next()
+            .unwrap()
             .parse::<f32>()
             .unwrap();
         writeln!(&mut outfile, "{},{}", fen, score).unwrap();
